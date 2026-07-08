@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('products')
 export class Product {
@@ -8,12 +8,20 @@ export class Product {
   @Column()
   name!: string;
 
-  @Column({type: 'decimal', precision: 10, scale: 2})
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => Number(value),
+    },
+  })
   price!: number;
 
-  @Column({type: 'int'})
+  @Column({ type: 'int' })
   totalQuantity!: number;
 
-  @Column({type: 'int'})
+  @Column({ type: 'int' })
   availableQuantity!: number;
 }
