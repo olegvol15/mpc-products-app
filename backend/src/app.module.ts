@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ProductsModule } from './products/products.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ReservationsModule } from './reservations/reservations.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
       }),
     }),
     ProductsModule,
+    ReservationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
