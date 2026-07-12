@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Param } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 
 @Controller('reservations')
@@ -8,5 +8,10 @@ export class ReservationsController {
   @Post()
   async create(@Body() body: { productId: string }) {
     return this.reservationsService.create(body.productId);
+  }
+
+  @Post(':id/checkout')
+  async checkout(@Param('id') id: string) {
+    return this.reservationsService.checkout(id);
   }
 }

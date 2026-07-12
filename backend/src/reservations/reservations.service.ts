@@ -1,4 +1,4 @@
-import { Reservation } from './reservation.entity';
+import { Reservation, ReservationStatus } from './reservation.entity';
 import { DataSource } from 'typeorm';
 import { Product } from '../products/product.entity';
 import {
@@ -37,4 +37,26 @@ export class ReservationsService {
       return manager.save(reservation);
     });
   }
-}
+
+  async checkout(id: string): Promise<Reservation> {
+        const updateStatus = await this.dataSource.createQueryBuilder()
+        .update(Reservation)
+        .set({status: ReservationStatus.COMPLETED})
+        .where('id = :id AND "expiresAt" > NOW() AND status = :status', { id, status: ReservationStatus.ACTIVE })
+        .returning('*')
+        .execute();
+
+        if(updateStatus.affected === 0) {
+          const reservation = await this.dataSource.manager.findOneBy(Reservation, {id: id});
+          if (!reservation) {
+            throw new NotFoundException('Reservation not found');
+          }
+          if (reservation.status === ReservationStatus.COMPLETED) {
+            throw new ConflictException('Reservation has already been completed');
+          }
+          throw new ConflictException('Reservation has expired');
+        }
+
+        return (updateStatus.raw as Reservation[])[0];
+    }
+  }
