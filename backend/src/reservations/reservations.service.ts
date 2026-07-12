@@ -1,6 +1,5 @@
-import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from './reservation.entity';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { Product } from '../products/product.entity';
 import {
   ConflictException,
@@ -12,32 +11,30 @@ const RESERVATION_TTL_MS = 15 * 60 * 1000;
 
 @Injectable()
 export class ReservationsService {
-  constructor(
-    @InjectRepository(Reservation)
-    private readonly reservationsRepository: Repository<Reservation>,
-    @InjectRepository(Product)
-    private readonly productsRepository: Repository<Product>,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
-  async create(productId: string) {
-    const product = await this.productsRepository.findOneBy({ id: productId });
+  async create(productId: string): Promise<Reservation> {
+    return this.dataSource.transaction(async (manager) => {
+      const decrementResult = await manager
+        .createQueryBuilder()
+        .update(Product)
+        .set({ availableQuantity: () => '"availableQuantity" - 1' })
+        .where('id = :id AND "availableQuantity" > 0', { id: productId })
+        .execute();
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+      if (decrementResult.affected === 0) {
+        const product = await manager.findOneBy(Product, { id: productId });
+        if (!product) {
+          throw new NotFoundException('Product not found');
+        }
+        throw new ConflictException('Product is sold out');
+      }
 
-    if (product.availableQuantity <= 0) {
-      throw new ConflictException('Product is sold out');
-    }
-
-    product.availableQuantity -= 1;
-    await this.productsRepository.save(product);
-
-    const reservation = this.reservationsRepository.create({
-      productId: product.id,
-      expiresAt: new Date(Date.now() + RESERVATION_TTL_MS),
+      const reservation = manager.create(Reservation, {
+        productId,
+        expiresAt: new Date(Date.now() + RESERVATION_TTL_MS),
+      });
+      return manager.save(reservation);
     });
-
-    return this.reservationsRepository.save(reservation);
   }
 }
