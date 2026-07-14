@@ -21,16 +21,12 @@ export class ReservationsController {
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<Reservation> {
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Reservation> {
     return this.reservationsService.findOne(id);
   }
 
   @Post(':id/checkout')
-  async checkout(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<Reservation> {
+  async checkout(@Param('id', ParseUUIDPipe) id: string): Promise<Reservation> {
     return this.reservationsService.checkout(id);
   }
 

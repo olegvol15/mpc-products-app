@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddStockGuardAndExpiryIndex1784063493172
-  implements MigrationInterface
-{
+export class AddStockGuardAndExpiryIndex1784063493172 implements MigrationInterface {
   name = 'AddStockGuardAndExpiryIndex1784063493172';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
