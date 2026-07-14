@@ -1,0 +1,27 @@
+databases:
+  - name: mpc-products-db
+    databaseName: mpc_products
+    plan: free
+
+services:
+  - type: web
+    name: mpc-products-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    # Render's Node image ships npm; corepack activates the pnpm the lockfile was built with.
+    buildCommand: corepack enable && corepack prepare pnpm@10.30.3 --activate && pnpm install --frozen-lockfile && pnpm build
+    # Migrations then a non-destructive seed, on every boot. Free instances spin down
+    # when idle, so this runs again on cold start — it must not reset live data.
+    startCommand: pnpm deploy:start
+    healthCheckPath: /products
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mpc-products-db
+          property: connectionString
+      - key: NODE_VERSION
+        value: "24"
+      # Set to the deployed frontend origin to pin CORS. Unset means "allow any".
+      - key: FRONTEND_URL
+        sync: false

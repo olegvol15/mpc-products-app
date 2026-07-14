@@ -8,15 +8,29 @@ const PRODUCTS: Pick<Product, 'name' | 'price' | 'totalQuantity'>[] = [
   { name: 'Halo Cap', price: 39.0, totalQuantity: 40 },
 ];
 
+/**
+ * Runs on every boot in production, so by default it only fills an empty
+ * catalogue — a restart (or a free-tier cold start) must never wipe the stock
+ * and reservations of someone mid-purchase. Pass --force to reset the drop.
+ */
 async function seed(): Promise<void> {
+  const force = process.argv.includes('--force');
+
   await dataSource.initialize();
 
   try {
-    await dataSource.query(
-      'TRUNCATE TABLE "reservations", "products" RESTART IDENTITY CASCADE',
-    );
+    const products = dataSource.getRepository(Product);
 
-    await dataSource.getRepository(Product).save(
+    if (force) {
+      await dataSource.query(
+        'TRUNCATE TABLE "reservations", "products" RESTART IDENTITY CASCADE',
+      );
+    } else if ((await products.count()) > 0) {
+      console.log('Products already present, leaving them alone');
+      return;
+    }
+
+    await products.save(
       PRODUCTS.map((product) => ({
         ...product,
         availableQuantity: product.totalQuantity,

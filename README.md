@@ -126,6 +126,34 @@ A reservation moves through `active → completed | expired | cancelled`, and ne
 
 ---
 
+## Deployment
+
+Backend and database on Render (`render.yaml`), frontend on Vercel (`frontend/vercel.json`).
+
+**Render** — New → Blueprint → pick this repo. It reads `render.yaml` and creates the Postgres
+instance plus the API. `DATABASE_URL` is wired automatically; set `FRONTEND_URL` to the Vercel origin
+once you have it, so CORS is pinned to it. On boot the service runs migrations and then a seed that
+only fills an *empty* catalogue — free instances spin down when idle, and a cold start must not wipe
+a shopper's reservation.
+
+**Vercel** — import the repo, set **Root Directory** to `frontend`, and add
+`VITE_API_URL=https://<your-api>.onrender.com`. The rewrite in `vercel.json` sends every path to
+`index.html`, without which a direct hit on `/products/:id` would 404.
+
+### Environment variables
+
+| Variable       | Where    | Purpose                                                            |
+| -------------- | -------- | ------------------------------------------------------------------ |
+| `DATABASE_URL` | backend  | Managed Postgres connection string. Takes precedence over `DB_*`   |
+| `DATABASE_SSL` | backend  | `false` to disable TLS (only for a `DATABASE_URL` pointing locally) |
+| `DB_*`         | backend  | Local docker-compose credentials (`postgres` / `postgres`)          |
+| `FRONTEND_URL` | backend  | Origin allowed by CORS. Unset means any origin                      |
+| `VITE_API_URL` | frontend | Base URL of the API. Defaults to `http://localhost:3000`            |
+
+> The first cold start on Render's free tier takes ~30 seconds while the instance wakes up.
+
+---
+
 ## Assumptions
 
 - **One reservation holds exactly one unit.** No quantity picker. Adding one is a `quantity` column
