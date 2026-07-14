@@ -1,6 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('products')
+@Check(
+  'CHK_products_available_quantity',
+  '"availableQuantity" >= 0 AND "availableQuantity" <= "totalQuantity"',
+)
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

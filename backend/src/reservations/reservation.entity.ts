@@ -5,6 +5,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 
 export enum ReservationStatus {
@@ -15,6 +16,7 @@ export enum ReservationStatus {
 }
 
 @Entity('reservations')
+@Index('IDX_reservations_status_expires_at', ['status', 'expiresAt'])
 export class Reservation {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
