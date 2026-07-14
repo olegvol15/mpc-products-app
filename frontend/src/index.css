@@ -7,6 +7,9 @@
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
+  /* Text sitting on top of --accent. The dark theme's accent is light, so white
+     on it would wash out; it needs a dark foreground instead. */
+  --accent-fg: #fff;
   --danger: #c0392b;
   --success: #1e8e5a;
   --shadow:
@@ -35,6 +38,7 @@
     --accent: #c084fc;
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
+    --accent-fg: #16171d;
     --danger: #f87171;
     --success: #4ade80;
     --shadow:
@@ -60,4 +64,235 @@ h2 {
 
 p {
   margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+/* Layout */
+
+.app {
+  width: 900px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+  margin-bottom: 32px;
+}
+
+.brand {
+  display: inline-block;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  color: var(--text-h);
+  text-decoration: none;
+}
+
+.brand span {
+  color: var(--accent);
+}
+
+.tagline {
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+/* Product grid */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: block;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.card-sold-out {
+  opacity: 0.55;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.card-head h2 {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.price {
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--text-h);
+  white-space: nowrap;
+}
+
+.price-lg {
+  font-size: 24px;
+  margin: 8px 0 4px;
+}
+
+/* Stock meter */
+
+.stock-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.stock-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.stock-label {
+  font-size: 14px;
+}
+
+/* Product detail */
+
+.detail {
+  max-width: 560px;
+}
+
+.back {
+  display: inline-block;
+  font-size: 14px;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.detail h1 {
+  font-size: 34px;
+  letter-spacing: -0.8px;
+}
+
+.panel {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.panel h2 {
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+
+.panel p {
+  font-size: 15px;
+}
+
+.panel-success {
+  border-color: var(--success);
+}
+
+.panel-warning {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.timer {
+  font-family: var(--mono);
+  color: var(--accent);
+}
+
+.timer-urgent {
+  color: var(--danger);
+}
+
+/* Actions */
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font: inherit;
+  font-size: 15px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--accent-border);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.panel > .btn {
+  margin-top: 16px;
+}
+
+/* States */
+
+.state {
+  padding: 40px 0;
+  font-size: 15px;
+}
+
+.state-error {
+  margin-top: 16px;
+  color: var(--danger);
+  font-size: 15px;
 }
