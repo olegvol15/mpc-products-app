@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { Product } from '../types';
 
 const priceFormat = new Intl.NumberFormat('en-US', {
@@ -10,7 +11,10 @@ export default function ProductCard({ product }: { product: Product }) {
   const remaining = product.availableQuantity / product.totalQuantity;
 
   return (
-    <article className={`card${soldOut ? ' card-sold-out' : ''}`}>
+    <Link
+      to={`/products/${product.id}`}
+      className={`card${soldOut ? ' card-sold-out' : ''}`}
+    >
       <div className="card-head">
         <h2>{product.name}</h2>
         <span className="price">{priceFormat.format(product.price)}</span>
@@ -29,6 +33,6 @@ export default function ProductCard({ product }: { product: Product }) {
             : `${product.availableQuantity} of ${product.totalQuantity} left`}
         </span>
       </div>
-    </article>
+    </Link>
   );
 }

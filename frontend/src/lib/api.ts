@@ -5,6 +5,10 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3000',
 });
 
+/** True only when the server positively denies the resource exists. */
+export const isNotFound = (error: unknown): boolean =>
+  axios.isAxiosError(error) && error.response?.status === 404;
+
 /** Turns a Nest error response into a message worth showing a buyer. */
 export function errorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
