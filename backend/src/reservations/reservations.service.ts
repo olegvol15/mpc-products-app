@@ -60,13 +60,61 @@ export class ReservationsService {
       if (!reservation) {
         throw new NotFoundException('Reservation not found');
       }
-      if (reservation.status === ReservationStatus.COMPLETED) {
-        throw new ConflictException('Reservation has already been completed');
+      if (reservation.status !== ReservationStatus.ACTIVE) {
+        throw new ConflictException(
+          `Reservation is already ${reservation.status}`,
+        );
       }
       throw new ConflictException('Reservation has expired');
     }
 
     return (updateStatus.raw as Reservation[])[0];
+  }
+
+  async findOne(id: string): Promise<Reservation> {
+    const reservation = await this.dataSource.manager.findOneBy(Reservation, {
+      id,
+    });
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+    return reservation;
+  }
+
+  async cancel(id: string): Promise<Reservation> {
+    return this.dataSource.transaction(async (manager) => {
+      const cancelResult = await manager
+        .createQueryBuilder()
+        .update(Reservation)
+        .set({ status: ReservationStatus.CANCELLED })
+        .where('id = :id AND status = :status', {
+          id,
+          status: ReservationStatus.ACTIVE,
+        })
+        .returning('*')
+        .execute();
+
+      if (cancelResult.affected === 0) {
+        const reservation = await manager.findOneBy(Reservation, { id });
+        if (!reservation) {
+          throw new NotFoundException('Reservation not found');
+        }
+        throw new ConflictException(
+          `Reservation is already ${reservation.status}`,
+        );
+      }
+
+      const reservation = (cancelResult.raw as Reservation[])[0];
+
+      await manager
+        .createQueryBuilder()
+        .update(Product)
+        .set({ availableQuantity: () => '"availableQuantity" + 1' })
+        .where('id = :id', { id: reservation.productId })
+        .execute();
+
+      return reservation;
+    });
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)

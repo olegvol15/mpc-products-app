@@ -11,6 +11,7 @@ export enum ReservationStatus {
   ACTIVE = 'active',
   COMPLETED = 'completed',
   EXPIRED = 'expired',
+  CANCELLED = 'cancelled',
 }
 
 @Entity('reservations')
